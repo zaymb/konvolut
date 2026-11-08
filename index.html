@@ -55,6 +55,10 @@ button{font:inherit; cursor:pointer}
   font:inherit; font-size:13.5px; border-radius:8px; padding:7px 10px; outline:none; min-width:0;
 }
 .tags{display:flex; flex-wrap:wrap; gap:6px; margin-bottom:14px}
+.tabs{display:flex; gap:18px; border-bottom:1px solid var(--line); margin:0 0 14px}
+.tab{border:none; background:none; color:var(--muted); font:inherit; font-size:14.5px; padding:6px 0 8px; margin-bottom:-1px; border-bottom:2px solid transparent; cursor:pointer}
+.tab.on{color:var(--ink); border-bottom-color:var(--accent); font-weight:600}
+.tab .ct{font-size:11.5px; color:var(--muted); font-weight:400; margin-left:3px}
 .chip{display:inline-flex; align-items:center; gap:5px; border:1px solid var(--line); background:var(--chipbg); color:var(--ink); border-radius:999px; padding:3px 10px; font-size:12.5px}
 .chip.on{border-color:var(--accent); background:var(--accent); color:#fff8ef}
 .chip.on .ct{color:#fff8ef}
@@ -97,6 +101,11 @@ button{font:inherit; cursor:pointer}
     </div>
   </div>
 
+  <div class="tabs" id="tabs">
+    <button class="tab" data-kind="lit">文献笔记<span class="ct" id="ct-lit"></span></button>
+    <button class="tab" data-kind="fleeting">Fleeting<span class="ct" id="ct-fleeting"></span></button>
+  </div>
+
   <div class="composer">
     <textarea id="txt" placeholder="一条碎片……"></textarea>
     <div class="crow">
@@ -126,6 +135,9 @@ var SHAPES=['■','▲','●','◆','✚','★','▰','◗'];
 var COLORS=['#c0392b','#2d7a4f','#2d5f9e','#b8860b','#8e4a7e','#2a7f7f','#bc6c25','#5a6a8a'];
 
 var items=[], sha=null, filter=null, q='', editId=null, busy=false;
+var TABKEY='konvolut-tab', kind=(function(){ try{ return localStorage.getItem(TABKEY)==='fleeting'?'fleeting':'lit'; }catch(e){ return 'lit'; } })();
+function kindOf(it){ return it.k==='fleeting'?'fleeting':'lit'; }
+function inTab(){ return items.filter(function(it){ return kindOf(it)===kind; }); }
 function $(id){ return document.getElementById(id); }
 function ls(k,v){ try{ if(v===undefined) return localStorage.getItem(k); if(v===null) localStorage.removeItem(k); else localStorage.setItem(k,v); }catch(e){ return null; } }
 function token(){ return ls(TOKKEY)||''; }
@@ -198,12 +210,12 @@ function rebuildSigla(){
   });
 }
 function siglum(t){ return SIG[t]||'<span class="sigla">●</span>'; }
-function tagCounts(){
-  var m={}; items.forEach(function(it){ (it.g||[]).forEach(function(t){ m[t]=(m[t]||0)+1; }); });
+function tagCounts(src){
+  var m={}; (src||inTab()).forEach(function(it){ (it.g||[]).forEach(function(t){ m[t]=(m[t]||0)+1; }); });
   return Object.keys(m).map(function(k){ return [k,m[k]]; }).sort(function(a,b){ return b[1]-a[1]||a[0].localeCompare(b[0]); });
 }
 function visible(){
-  return items.filter(function(it){
+  return inTab().filter(function(it){
     if(filter && (it.g||[]).indexOf(filter)<0) return false;
     if(q && (it.t+' '+(it.g||[]).join(' ')).toLowerCase().indexOf(q)<0) return false;
     return true;
@@ -211,6 +223,11 @@ function visible(){
 }
 function render(){
   rebuildSigla();
+  if(filter && !inTab().some(function(it){ return (it.g||[]).indexOf(filter)>=0; })) filter=null;
+  Array.prototype.forEach.call(document.querySelectorAll('.tab'), function(b){ b.classList.toggle('on', b.getAttribute('data-kind')===kind); });
+  $('ct-lit').textContent=items.filter(function(it){ return kindOf(it)==='lit'; }).length;
+  $('ct-fleeting').textContent=items.filter(function(it){ return kindOf(it)==='fleeting'; }).length;
+  $('txt').placeholder=kind==='fleeting'?'一个自己的念头……':'一条文献笔记……';
   var html='<button class="chip'+(filter===null?' on':'')+'" data-tag="">全部</button>';
   tagCounts().forEach(function(p){
     html+='<button class="chip'+(filter===p[0]?' on':'')+'" data-tag="'+esc(p[0])+'">'+siglum(p[0])+' '+esc(p[0])+' <span class="ct">'+p[1]+'</span></button>';
@@ -221,7 +238,7 @@ function render(){
     var tags=(it.g||[]).map(function(t){ return '<span class="mtag">'+siglum(t)+esc(t)+'</span>'; }).join('');
     return '<div class="card"><div class="txt">'+esc(it.t)+'</div><div class="meta">'+tags+'<span class="spacer"></span>'
       +'<button class="iconbtn" data-edit="'+it.id+'">改</button><button class="iconbtn danger" data-del="'+it.id+'">删</button></div></div>';
-  }).join(''):'<div class="empty">'+(items.length?'没搜到。':'空空如也。')+'</div>';
+  }).join(''):'<div class="empty">'+(inTab().length?'没搜到。':'空空如也。')+'</div>';
   $('count').textContent=items.length+' 条'+(filter?' · 筛:'+filter:'');
 }
 
@@ -231,10 +248,10 @@ function addOrSave(){
   var tags=$('tagin').value.split(/[,，]/).map(function(s){ return s.trim(); }).filter(Boolean);
   if(!txt){ toast('碎片是空的'); return; }
   if(!tags.length) tags=['未分类'];
-  var eid=editId;
+  var eid=editId, k=kind;
   commit(function(arr){
     if(eid!==null){ arr.forEach(function(x){ if(x.id===eid){ x.t=txt; x.g=tags; } }); }
-    else{ var id=arr.reduce(function(m,it){ return Math.max(m,it.id||0); },0)+1; arr.push({id:id,t:txt,g:tags}); }
+    else{ var id=arr.reduce(function(m,it){ return Math.max(m,it.id||0); },0)+1; arr.push({id:id,t:txt,g:tags,k:k}); }
     return arr;
   }, eid!==null?'edit fragment '+eid:'add fragment').then(function(){
     toast(eid!==null?'改好了':'收进去了');
@@ -244,9 +261,12 @@ function addOrSave(){
 
 function exportMd(){
   var md='# Konvolut 星座笔记\n\n## 标签密度\n\n';
-  tagCounts().forEach(function(p){ md+='- '+p[0]+' × '+p[1]+'\n'; });
-  md+='\n## 碎片\n\n';
-  items.slice().sort(function(a,b){ return a.id-b.id; }).forEach(function(it,i){ md+=(i+1)+'. '+it.t+'\n   `'+(it.g||[]).join('` `')+'`\n\n'; });
+  tagCounts(items).forEach(function(p){ md+='- '+p[0]+' × '+p[1]+'\n'; });
+  [['lit','文献笔记'],['fleeting','Fleeting notes']].forEach(function(sec){
+    md+='\n## '+sec[1]+'\n\n';
+    items.filter(function(it){ return kindOf(it)===sec[0]; }).sort(function(a,b){ return a.id-b.id; })
+      .forEach(function(it,i){ md+=(i+1)+'. '+it.t+'\n   `'+(it.g||[]).join('` `')+'`\n\n'; });
+  });
   var box=$('exportbox'), ta=$('exportta'); ta.value=md;
   function fallback(){ box.classList.add('show'); ta.focus(); ta.select(); toast('复制不了，手动全选吧'); }
   if(navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(md).then(function(){ toast('已复制'); box.classList.remove('show'); }, fallback);
@@ -259,6 +279,13 @@ $('reload').addEventListener('click', load);
 $('setbtn').addEventListener('click', function(){ $('settings').classList.toggle('show'); });
 $('toksave').addEventListener('click', function(){ var v=$('tokin').value.trim(); if(!v) return; ls(TOKKEY,v); $('tokin').value=''; $('settings').classList.remove('show'); toast('钥匙存好了'); load(); });
 $('tokclear').addEventListener('click', function(){ ls(TOKKEY,null); toast('钥匙清掉了'); load(); });
+$('tabs').addEventListener('click', function(e){
+  var b=e.target.closest('[data-kind]'); if(!b) return;
+  kind=b.getAttribute('data-kind'); filter=null;
+  try{ localStorage.setItem(TABKEY,kind); }catch(err){}
+  if(editId!==null){ editId=null; $('addbtn').textContent='收进去'; $('txt').value=''; $('tagin').value=''; }
+  render();
+});
 $('search').addEventListener('input', function(){ q=this.value.trim().toLowerCase(); render(); });
 $('tagbar').addEventListener('click', function(e){
   var b=e.target.closest('[data-tag]'); if(!b) return;

@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex">
+<title>Konvolut 星座笔记</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;600;700&display=swap">
+<style>
+:root{
+  --paper:#f4efe4; --card:#fffdf6; --ink:#2b2620; --muted:#8c8273;
+  --line:#ddd3bf; --accent:#9c3b2e; --chipbg:#efe8d8;
+}
+@media (prefers-color-scheme: dark){
+  :root{
+    --paper:#1c1a15; --card:#26231d; --ink:#e9e2d2; --muted:#9a9080;
+    --line:#3b362c; --accent:#d27b63; --chipbg:#322e25; color-scheme:dark;
+  }
+}
+*{box-sizing:border-box}
+body{
+  margin:0; background:var(--paper); color:var(--ink);
+  font-family:'Noto Serif SC','Songti SC',Georgia,serif;
+  font-size:15px; line-height:1.65;
+}
+.wrap{max-width:660px; margin:0 auto; padding:20px 16px 80px}
+header{display:flex; align-items:baseline; justify-content:space-between; gap:8px; margin-bottom:14px}
+h1{font-size:22px; font-weight:700; margin:0; letter-spacing:.02em}
+.count{color:var(--muted); font-size:12.5px; white-space:nowrap}
+.status{font-size:12px; color:var(--muted); margin:-6px 0 12px; display:flex; gap:8px; align-items:center; flex-wrap:wrap}
+.dot{width:7px; height:7px; border-radius:50%; background:var(--muted); display:inline-block}
+.dot.ok{background:#2d7a4f} .dot.warn{background:#b8860b} .dot.err{background:#c0392b}
+.linkbtn{border:none; background:none; color:var(--accent); font:inherit; font-size:12px; padding:0; cursor:pointer; text-decoration:underline}
+.composer,.settings{background:var(--card); border:1px solid var(--line); border-radius:10px; padding:12px; margin-bottom:14px}
+.settings{display:none} .settings.show{display:block}
+.settings p{margin:0 0 8px; font-size:12.5px; color:var(--muted)}
+.settings input{width:100%; border:1px solid var(--line); background:var(--paper); color:var(--ink); font:12.5px ui-monospace,monospace; border-radius:6px; padding:7px 8px; outline:none}
+.composer textarea{
+  width:100%; border:none; background:transparent; color:var(--ink);
+  font:inherit; resize:vertical; min-height:56px; outline:none; padding:0;
+}
+.composer textarea::placeholder,.composer input::placeholder{color:var(--muted)}
+.crow{display:flex; gap:8px; margin-top:8px; align-items:center}
+.crow input{
+  flex:1; border:none; border-top:1px dashed var(--line); background:transparent;
+  color:var(--ink); font:inherit; font-size:13px; outline:none; padding:8px 0 0; min-width:0;
+}
+button{font:inherit; cursor:pointer}
+.btn{border:1px solid var(--line); background:var(--chipbg); color:var(--ink); border-radius:8px; padding:6px 14px; font-size:13.5px}
+.btn.primary{background:var(--accent); border-color:var(--accent); color:#fff8ef}
+.btn:disabled{opacity:.5; cursor:default}
+.toolrow{display:flex; gap:8px; margin-bottom:10px}
+.toolrow input{
+  flex:1; border:1px solid var(--line); background:var(--card); color:var(--ink);
+  font:inherit; font-size:13.5px; border-radius:8px; padding:7px 10px; outline:none; min-width:0;
+}
+.tags{display:flex; flex-wrap:wrap; gap:6px; margin-bottom:14px}
+.chip{display:inline-flex; align-items:center; gap:5px; border:1px solid var(--line); background:var(--chipbg); color:var(--ink); border-radius:999px; padding:3px 10px; font-size:12.5px}
+.chip.on{border-color:var(--accent); background:var(--accent); color:#fff8ef}
+.chip.on .ct{color:#fff8ef}
+.chip .ct{color:var(--muted); font-size:11px}
+.card{background:var(--card); border:1px solid var(--line); border-radius:10px; padding:12px 14px; margin-bottom:10px}
+.card .txt{white-space:pre-wrap; word-break:break-word}
+.card .meta{display:flex; flex-wrap:wrap; gap:6px; align-items:center; margin-top:9px}
+.mtag{display:inline-flex; align-items:center; gap:4px; font-size:12px; color:var(--muted)}
+.sigla{font-size:11px; line-height:1}
+.spacer{flex:1}
+.iconbtn{border:none; background:transparent; color:var(--muted); font-size:13px; padding:2px 6px; border-radius:6px}
+.iconbtn:hover{color:var(--ink)}
+.iconbtn.danger{color:var(--accent)}
+.empty{color:var(--muted); text-align:center; padding:40px 0; font-size:13.5px}
+.exportbox{display:none; margin-top:12px}
+.exportbox.show{display:block}
+.exportbox textarea{width:100%; height:180px; font:12px/1.5 ui-monospace,monospace; background:var(--card); color:var(--ink); border:1px solid var(--line); border-radius:8px; padding:10px}
+.toast{position:fixed; left:50%; bottom:24px; transform:translateX(-50%) translateY(80px); background:var(--ink); color:var(--paper); padding:8px 16px; border-radius:999px; font-size:13px; transition:transform .25s; z-index:9}
+.toast.show{transform:translateX(-50%) translateY(0)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>Konvolut</h1>
+    <span class="count" id="count"></span>
+  </header>
+  <div class="status">
+    <span class="dot" id="dot"></span><span id="stxt">载入中……</span>
+    <button class="linkbtn" id="reload">刷新</button>
+    <button class="linkbtn" id="setbtn">钥匙</button>
+  </div>
+
+  <div class="settings" id="settings">
+    <p>贴一个 GitHub fine-grained token（只勾 zaymb/konvolut 的 Contents: Read and write）。只存在这台设备的浏览器里，用来把碎片写回仓库。</p>
+    <div class="crow" style="margin-top:0">
+      <input id="tokin" type="password" placeholder="github_pat_……" autocomplete="off">
+      <button class="btn primary" id="toksave">存</button>
+      <button class="btn" id="tokclear">清除</button>
+    </div>
+  </div>
+
+  <div class="composer">
+    <textarea id="txt" placeholder="一条碎片……"></textarea>
+    <div class="crow">
+      <input id="tagin" placeholder="标签，逗号分隔">
+      <button class="btn primary" id="addbtn">收进去</button>
+    </div>
+  </div>
+
+  <div class="toolrow">
+    <input id="search" placeholder="搜一下……">
+    <button class="btn" id="exportbtn">导出 md</button>
+  </div>
+  <div class="exportbox" id="exportbox"><textarea id="exportta" readonly></textarea></div>
+
+  <div class="tags" id="tagbar"></div>
+  <div id="list"></div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+(function(){
+"use strict";
+var OWNER='zaymb', REPO='konvolut', PATH='notes.json', BRANCH='main';
+var API='https://api.github.com/repos/'+OWNER+'/'+REPO+'/contents/'+PATH;
+var CACHE='konvolut-gh-cache', TOKKEY='konvolut-gh-token';
+var SHAPES=['■','▲','●','◆','✚','★','▰','◗'];
+var COLORS=['#c0392b','#2d7a4f','#2d5f9e','#b8860b','#8e4a7e','#2a7f7f','#bc6c25','#5a6a8a'];
+
+var items=[], sha=null, filter=null, q='', editId=null, busy=false;
+function $(id){ return document.getElementById(id); }
+function ls(k,v){ try{ if(v===undefined) return localStorage.getItem(k); if(v===null) localStorage.removeItem(k); else localStorage.setItem(k,v); }catch(e){ return null; } }
+function token(){ return ls(TOKKEY)||''; }
+function status(kind,msg){ $('dot').className='dot '+(kind||''); $('stxt').textContent=msg; }
+function toast(msg){ var t=$('toast'); t.textContent=msg; t.classList.add('show'); clearTimeout(t._tm); t._tm=setTimeout(function(){ t.classList.remove('show'); },2000); }
+function esc(s){ return String(s).replace(/[&<>"']/g,function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
+
+function b64dec(s){ var bin=atob(s.replace(/\n/g,'')); var bytes=new Uint8Array(bin.length); for(var i=0;i<bin.length;i++) bytes[i]=bin.charCodeAt(i); return new TextDecoder().decode(bytes); }
+function b64enc(str){ var bytes=new TextEncoder().encode(str), bin=''; for(var i=0;i<bytes.length;i+=0x8000) bin+=String.fromCharCode.apply(null, bytes.subarray(i,i+0x8000)); return btoa(bin); }
+function headers(){ var h={'Accept':'application/vnd.github+json'}; if(token()) h['Authorization']='Bearer '+token(); return h; }
+
+function fetchRemote(){
+  return fetch(API+'?ref='+BRANCH+'&_='+Date.now(), {headers:headers(), cache:'no-store'}).then(function(r){
+    if(!r.ok) throw new Error('api '+r.status);
+    return r.json();
+  }).then(function(j){
+    return {sha:j.sha, items:JSON.parse(b64dec(j.content))};
+  }).catch(function(){
+    // fallback: the Pages copy (may lag a few minutes)
+    return fetch('notes.json?_='+Date.now(), {cache:'no-store'}).then(function(r){
+      if(!r.ok) throw new Error('pages '+r.status);
+      return r.json();
+    }).then(function(arr){ return {sha:null, items:arr, stale:true}; });
+  });
+}
+
+function load(){
+  status('', '载入中……');
+  return fetchRemote().then(function(res){
+    items=res.items||[]; sha=res.sha;
+    ls(CACHE, JSON.stringify(items));
+    render();
+    if(res.stale) status('warn','已读到仓库数据（备用通道，可能晚几分钟）');
+    else status(token()?'ok':'warn', token()?'已连上仓库，可读可写':'已连上仓库 · 只读（点「钥匙」才能写入）');
+  }).catch(function(){
+    var c=ls(CACHE); if(c){ try{ items=JSON.parse(c); }catch(e){} }
+    render();
+    status('err', c?'连不上仓库，显示的是上次的缓存':'连不上仓库');
+  });
+}
+
+// Apply a change against the freshest copy, then commit. Retries once on conflict.
+function commit(mutate, message, tries){
+  tries=tries||0;
+  if(!token()){ toast('先点「钥匙」贴 token'); $('settings').classList.add('show'); return Promise.reject(new Error('no token')); }
+  busy=true; $('addbtn').disabled=true; status('', '写入中……');
+  return fetchRemote().then(function(res){
+    if(!res.sha) throw new Error('no sha');
+    var next=mutate((res.items||[]).slice());
+    var body=JSON.stringify({message:message, branch:BRANCH, sha:res.sha,
+      content:b64enc(JSON.stringify(next,null,2)+'\n')});
+    return fetch(API, {method:'PUT', headers:Object.assign({'Content-Type':'application/json'},headers()), body:body})
+      .then(function(r){
+        if(r.status===409 && tries<2) return commit(mutate,message,tries+1);
+        if(!r.ok) return r.text().then(function(t){ throw new Error(r.status+' '+t.slice(0,120)); });
+        return r.json().then(function(j){ sha=j.content.sha; items=next; ls(CACHE, JSON.stringify(items)); render(); status('ok','已连上仓库，可读可写'); });
+      });
+  }).catch(function(e){
+    status('err','没写进去：'+(e.message||e)); throw e;
+  }).finally(function(){ busy=false; $('addbtn').disabled=false; });
+}
+
+var SIG={};
+function rebuildSigla(){
+  SIG={}; var all={};
+  items.forEach(function(it){ (it.g||[]).forEach(function(t){ all[t]=1; }); });
+  Object.keys(all).sort().forEach(function(t,i){
+    var sh=SHAPES[i%SHAPES.length], co=COLORS[(i+Math.floor(i/SHAPES.length))%COLORS.length];
+    SIG[t]='<span class="sigla" style="color:'+co+'">'+sh+'</span>';
+  });
+}
+function siglum(t){ return SIG[t]||'<span class="sigla">●</span>'; }
+function tagCounts(){
+  var m={}; items.forEach(function(it){ (it.g||[]).forEach(function(t){ m[t]=(m[t]||0)+1; }); });
+  return Object.keys(m).map(function(k){ return [k,m[k]]; }).sort(function(a,b){ return b[1]-a[1]||a[0].localeCompare(b[0]); });
+}
+function visible(){
+  return items.filter(function(it){
+    if(filter && (it.g||[]).indexOf(filter)<0) return false;
+    if(q && (it.t+' '+(it.g||[]).join(' ')).toLowerCase().indexOf(q)<0) return false;
+    return true;
+  }).sort(function(a,b){ return b.id-a.id; });
+}
+function render(){
+  rebuildSigla();
+  var html='<button class="chip'+(filter===null?' on':'')+'" data-tag="">全部</button>';
+  tagCounts().forEach(function(p){
+    html+='<button class="chip'+(filter===p[0]?' on':'')+'" data-tag="'+esc(p[0])+'">'+siglum(p[0])+' '+esc(p[0])+' <span class="ct">'+p[1]+'</span></button>';
+  });
+  $('tagbar').innerHTML=html;
+  var vis=visible();
+  $('list').innerHTML=vis.length?vis.map(function(it){
+    var tags=(it.g||[]).map(function(t){ return '<span class="mtag">'+siglum(t)+esc(t)+'</span>'; }).join('');
+    return '<div class="card"><div class="txt">'+esc(it.t)+'</div><div class="meta">'+tags+'<span class="spacer"></span>'
+      +'<button class="iconbtn" data-edit="'+it.id+'">改</button><button class="iconbtn danger" data-del="'+it.id+'">删</button></div></div>';
+  }).join(''):'<div class="empty">'+(items.length?'没搜到。':'空空如也。')+'</div>';
+  $('count').textContent=items.length+' 条'+(filter?' · 筛:'+filter:'');
+}
+
+function addOrSave(){
+  if(busy) return;
+  var txt=$('txt').value.trim();
+  var tags=$('tagin').value.split(/[,，]/).map(function(s){ return s.trim(); }).filter(Boolean);
+  if(!txt){ toast('碎片是空的'); return; }
+  if(!tags.length) tags=['未分类'];
+  var eid=editId;
+  commit(function(arr){
+    if(eid!==null){ arr.forEach(function(x){ if(x.id===eid){ x.t=txt; x.g=tags; } }); }
+    else{ var id=arr.reduce(function(m,it){ return Math.max(m,it.id||0); },0)+1; arr.push({id:id,t:txt,g:tags}); }
+    return arr;
+  }, eid!==null?'edit fragment '+eid:'add fragment').then(function(){
+    toast(eid!==null?'改好了':'收进去了');
+    editId=null; $('addbtn').textContent='收进去'; $('txt').value=''; $('tagin').value='';
+  }, function(){});
+}
+
+function exportMd(){
+  var md='# Konvolut 星座笔记\n\n## 标签密度\n\n';
+  tagCounts().forEach(function(p){ md+='- '+p[0]+' × '+p[1]+'\n'; });
+  md+='\n## 碎片\n\n';
+  items.slice().sort(function(a,b){ return a.id-b.id; }).forEach(function(it,i){ md+=(i+1)+'. '+it.t+'\n   `'+(it.g||[]).join('` `')+'`\n\n'; });
+  var box=$('exportbox'), ta=$('exportta'); ta.value=md;
+  function fallback(){ box.classList.add('show'); ta.focus(); ta.select(); toast('复制不了，手动全选吧'); }
+  if(navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(md).then(function(){ toast('已复制'); box.classList.remove('show'); }, fallback);
+  else fallback();
+}
+
+$('addbtn').addEventListener('click', addOrSave);
+$('exportbtn').addEventListener('click', exportMd);
+$('reload').addEventListener('click', load);
+$('setbtn').addEventListener('click', function(){ $('settings').classList.toggle('show'); });
+$('toksave').addEventListener('click', function(){ var v=$('tokin').value.trim(); if(!v) return; ls(TOKKEY,v); $('tokin').value=''; $('settings').classList.remove('show'); toast('钥匙存好了'); load(); });
+$('tokclear').addEventListener('click', function(){ ls(TOKKEY,null); toast('钥匙清掉了'); load(); });
+$('search').addEventListener('input', function(){ q=this.value.trim().toLowerCase(); render(); });
+$('tagbar').addEventListener('click', function(e){
+  var b=e.target.closest('[data-tag]'); if(!b) return;
+  var t=b.getAttribute('data-tag'); filter=(t===''||filter===t)?null:t; render();
+});
+$('list').addEventListener('click', function(e){
+  var eb=e.target.closest('[data-edit]'), db=e.target.closest('[data-del]');
+  if(eb){
+    var id=+eb.getAttribute('data-edit'), it=items.filter(function(x){ return x.id===id; })[0];
+    if(it){ editId=id; $('txt').value=it.t; $('tagin').value=(it.g||[]).join(', '); $('addbtn').textContent='保存修改'; window.scrollTo({top:0}); $('txt').focus(); }
+  }
+  if(db){
+    if(db.getAttribute('data-arm')==='1'){
+      var id2=+db.getAttribute('data-del');
+      commit(function(arr){ return arr.filter(function(x){ return x.id!==id2; }); }, 'delete fragment '+id2)
+        .then(function(){ toast('删掉了'); }, function(){});
+    }else{
+      db.setAttribute('data-arm','1'); db.textContent='确认删？';
+      setTimeout(function(){ db.removeAttribute('data-arm'); db.textContent='删'; },2200);
+    }
+  }
+});
+
+var c=ls(CACHE); if(c){ try{ items=JSON.parse(c); render(); }catch(e){} }
+load();
+})();
+</script>
+</body>
+</html>

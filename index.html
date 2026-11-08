@@ -102,7 +102,7 @@ button{font:inherit; cursor:pointer}
   </div>
 
   <div class="tabs" id="tabs">
-    <button class="tab" data-kind="lit">文献笔记<span class="ct" id="ct-lit"></span></button>
+    <button class="tab" data-kind="lit">Literature<span class="ct" id="ct-lit"></span></button>
     <button class="tab" data-kind="fleeting">Fleeting<span class="ct" id="ct-fleeting"></span></button>
   </div>
 
@@ -227,7 +227,7 @@ function render(){
   Array.prototype.forEach.call(document.querySelectorAll('.tab'), function(b){ b.classList.toggle('on', b.getAttribute('data-kind')===kind); });
   $('ct-lit').textContent=items.filter(function(it){ return kindOf(it)==='lit'; }).length;
   $('ct-fleeting').textContent=items.filter(function(it){ return kindOf(it)==='fleeting'; }).length;
-  $('txt').placeholder=kind==='fleeting'?'一个自己的念头……':'一条文献笔记……';
+  $('txt').placeholder=kind==='fleeting'?'一个自己的念头……':'一条文献……';
   var html='<button class="chip'+(filter===null?' on':'')+'" data-tag="">全部</button>';
   tagCounts().forEach(function(p){
     html+='<button class="chip'+(filter===p[0]?' on':'')+'" data-tag="'+esc(p[0])+'">'+siglum(p[0])+' '+esc(p[0])+' <span class="ct">'+p[1]+'</span></button>';
@@ -262,7 +262,7 @@ function addOrSave(){
 function exportMd(){
   var md='# Konvolut 星座笔记\n\n## 标签密度\n\n';
   tagCounts(items).forEach(function(p){ md+='- '+p[0]+' × '+p[1]+'\n'; });
-  [['lit','文献笔记'],['fleeting','Fleeting notes']].forEach(function(sec){
+  [['lit','Literature notes'],['fleeting','Fleeting notes']].forEach(function(sec){
     md+='\n## '+sec[1]+'\n\n';
     items.filter(function(it){ return kindOf(it)===sec[0]; }).sort(function(a,b){ return a.id-b.id; })
       .forEach(function(it,i){ md+=(i+1)+'. '+it.t+'\n   `'+(it.g||[]).join('` `')+'`\n\n'; });

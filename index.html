@@ -103,6 +103,7 @@ button{font:inherit; cursor:pointer}
 
   <div class="tabs" id="tabs">
     <button class="tab" data-kind="lit">Literature<span class="ct" id="ct-lit"></span></button>
+    <button class="tab" data-kind="perm">Permanent<span class="ct" id="ct-perm"></span></button>
     <button class="tab" data-kind="fleeting">Fleeting<span class="ct" id="ct-fleeting"></span></button>
   </div>
 
@@ -135,8 +136,8 @@ var SHAPES=['■','▲','●','◆','✚','★','▰','◗'];
 var COLORS=['#c0392b','#2d7a4f','#2d5f9e','#b8860b','#8e4a7e','#2a7f7f','#bc6c25','#5a6a8a'];
 
 var items=[], sha=null, filter=null, q='', editId=null, busy=false;
-var TABKEY='konvolut-tab', kind=(function(){ try{ return localStorage.getItem(TABKEY)==='fleeting'?'fleeting':'lit'; }catch(e){ return 'lit'; } })();
-function kindOf(it){ return it.k==='fleeting'?'fleeting':'lit'; }
+var TABKEY='konvolut-tab', kind=(function(){ try{ var s=localStorage.getItem(TABKEY); return (s==='fleeting'||s==='perm')?s:'lit'; }catch(e){ return 'lit'; } })();
+function kindOf(it){ return it.k==='fleeting'?'fleeting':(it.k==='perm'?'perm':'lit'); }
 function inTab(){ return items.filter(function(it){ return kindOf(it)===kind; }); }
 function $(id){ return document.getElementById(id); }
 function ls(k,v){ try{ if(v===undefined) return localStorage.getItem(k); if(v===null) localStorage.removeItem(k); else localStorage.setItem(k,v); }catch(e){ return null; } }
@@ -226,8 +227,9 @@ function render(){
   if(filter && !inTab().some(function(it){ return (it.g||[]).indexOf(filter)>=0; })) filter=null;
   Array.prototype.forEach.call(document.querySelectorAll('.tab'), function(b){ b.classList.toggle('on', b.getAttribute('data-kind')===kind); });
   $('ct-lit').textContent=items.filter(function(it){ return kindOf(it)==='lit'; }).length;
+  $('ct-perm').textContent=items.filter(function(it){ return kindOf(it)==='perm'; }).length;
   $('ct-fleeting').textContent=items.filter(function(it){ return kindOf(it)==='fleeting'; }).length;
-  $('txt').placeholder=kind==='fleeting'?'一个自己的念头……':'一条文献……';
+  $('txt').placeholder=kind==='fleeting'?'一个自己的念头……':(kind==='perm'?'一条成形的论点……':'一条文献……');
   var html='<button class="chip'+(filter===null?' on':'')+'" data-tag="">全部</button>';
   tagCounts().forEach(function(p){
     html+='<button class="chip'+(filter===p[0]?' on':'')+'" data-tag="'+esc(p[0])+'">'+siglum(p[0])+' '+esc(p[0])+' <span class="ct">'+p[1]+'</span></button>';
@@ -262,7 +264,7 @@ function addOrSave(){
 function exportMd(){
   var md='# Konvolut 星座笔记\n\n## 标签密度\n\n';
   tagCounts(items).forEach(function(p){ md+='- '+p[0]+' × '+p[1]+'\n'; });
-  [['lit','Literature notes'],['fleeting','Fleeting notes']].forEach(function(sec){
+  [['lit','Literature notes'],['perm','Permanent notes'],['fleeting','Fleeting notes']].forEach(function(sec){
     md+='\n## '+sec[1]+'\n\n';
     items.filter(function(it){ return kindOf(it)===sec[0]; }).sort(function(a,b){ return a.id-b.id; })
       .forEach(function(it,i){ md+=(i+1)+'. '+it.t+'\n   `'+(it.g||[]).join('` `')+'`\n\n'; });

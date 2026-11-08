@@ -16,7 +16,7 @@
   {"id": 15, "t": "K.的结局（Brod转述，打括号）：弥留之际城堡准许他住在村里。可他从踏上木桥起就在城堡里——他缺的不是居住,是\"被记录为居住\"。许可抵达的时刻恰是无法使用的时刻。", "g": ["城堡", "档案", "接近悖论"], "k": "fleeting"},
   {"id": 16, "t": "Merleau-Ponty / Böhme：氛围=空间化的情绪，介于主客之间的准客体，由身体直接感知。不可说是感官性的、身体性的——不是维特根斯坦逻辑边界外的沉默。", "g": ["身体", "field"], "k": "lit"},
   {"id": 17, "t": "Anil Seth《Being You》(2021)：知觉=controlled hallucination——大脑由内向外预测，感官信号作预测误差来纠正（predictive processing）；Seth称此语得自Chris Frith，可追溯至1990s Ramesh Jain的研讨会。我的读法：camera=暗室（camera obscura），confabulation是认知的常规操作；理解不是看穿，而是被纠正出来的贴合——诚实=把误差留在成片里。", "g": ["黑箱", "真相", "态度"], "k": "lit"},
-  {"id": 18, "t": "Daston & Galison《Objectivity》(2007；前身\"The Image of Objectivity\", Representations 40, 1992)：mechanical objectivity——19世纪中叶科学家不信任自己会美化、理想化观察，转向机械成像；理想是\"knowledge that bears no trace of the knower\"（p.17），以摄影为象征，实质是自我约束的伦理。我的读法：仪器=制造base case的尝试，一个没有内心的证人；失败在于箱子从操作者绕回来，field吸收仪器，人开始朝着记录活。", "g": ["黑箱", "档案", "纪录片"], "k": "lit"},
+  {"id": 18, "t": "Daston & Galison《Objectivity》(2007；前身\"The Image of Objectivity\", Representations 40, 1992)：mechanical objectivity——19世纪中叶科学家不信任自己会美化、理想化观察，转向机械成像；理想是\"knowledge that bears no trace of the knower\"（p.18），以摄影为象征，实质是自我约束的伦理。我的读法：仪器=制造base case的尝试，一个没有内心的证人；失败在于箱子从操作者绕回来，field吸收仪器，人开始朝着记录活。", "g": ["黑箱", "档案", "纪录片"], "k": "lit"},
   {"id": 19, "t": "Vertov《持摄影机的人》（1929）：摄影师被另一台摄影机拍下，观众在片中看着这部片——把递归原样展示一圈,然后停住。亮出自己的那一环。", "g": ["纪录片", "递归", "base case"], "k": "lit"},
   {"id": 20, "t": "马格利特《人类的境况》：画架上的画恰好挡住它所再现的风景——你永远无法掀开画验证，因为画就站在风景的位置上。《不可复制》：镜子只给后脑勺,观察者看不到自己在观察。", "g": ["再现", "黑箱"], "k": "lit"},
   {"id": 21, "t": "本雅明：星座——观念从碎片的排列方式中显现,排列是我做的且我承认。Konvolut+彩色符号=纸质超链接。\"作品是构思的死亡面具。\"望远镜有边缘，星座才成为星座。", "g": ["方法"], "k": "lit"},

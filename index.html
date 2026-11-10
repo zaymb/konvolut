@@ -67,7 +67,7 @@ input,textarea{font:inherit; color:var(--ink)}
 .tags.wrapline{flex-wrap:wrap; overflow:visible; padding-bottom:0}
 #tagbar{margin-bottom:14px; gap:5px}
 #tagbar .chip{font-size:12px; padding:2px 8px; gap:4px}
-.chip.ghost{background:transparent; color:var(--muted); border-style:dashed}
+.tagfold{margin-left:auto; align-self:center; border:none; background:none; color:var(--muted); font-size:12px; padding:2px 0 2px 10px; white-space:nowrap}
 .chip{flex:none; display:inline-flex; align-items:center; gap:5px; border:1px solid var(--line); background:var(--chipbg); color:var(--ink); border-radius:999px; padding:3px 10px; font-size:12.5px; white-space:nowrap}
 .chip.on{border-color:var(--accent); background:var(--accent); color:#fff8ef}
 .chip.on .ct,.chip.on .sigla{color:#fff8ef !important}
@@ -436,10 +436,10 @@ function renderList(){
     Object.keys(cnt).sort(function(a,b){ return cnt[b]-cnt[a]||a.localeCompare(b); }).forEach(function(t){
       ch+='<button class="chip'+(filter===t?' on':'')+'" data-tag="'+esc(t)+'">'+siglum(t)+' '+esc(t)+' <span class="ct">'+cnt[t]+'</span></button>';
     });
-    ch+='<button class="chip ghost" data-tagfold="0">收起 ▴</button>';
+    ch+='<button class="tagfold" data-tagfold="0">收起标签 ▴</button>';
   }else{
     if(filter) ch='<button class="chip on" data-tag="'+esc(filter)+'">'+siglum(filter)+' '+esc(filter)+' ×</button>';
-    ch+='<button class="chip ghost" data-tagfold="1">标签 ▾</button>';
+    ch+='<button class="tagfold" data-tagfold="1">展开标签 ▾</button>';
   }
   $('tagbar').innerHTML=ch;
   Array.prototype.forEach.call($('modeseg').children,function(b){ b.classList.toggle('on', b.getAttribute('data-mode')===mode); });

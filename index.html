@@ -550,7 +550,7 @@ function applyView(){
   var k=mv.k, fs=(11.5/k).toFixed(2), sw=(3/k).toFixed(2), lit=0, used=0, taken=[];
   mapNodes.forEach(function(n){
     if(!n.on) return; lit++;
-    var sx=n.x*k+mv.x, sy=n.y*k+mv.y, r=n.r*k+2; taken.push([sx-r,sy-r,sx+r,sy+r,n.id]);
+    var sx=n.x*k+mv.x, sy=n.y*k+mv.y, r=n.r*k+2; taken.push([sx-r,sy-r,sx+r,sy+r,n.pri>=1e6?-1e9:n.id]);   // nothing may cover the focused node
   });
   var budget=(sel!==null||lit<=16)?1e9:Math.round(12*Math.pow(k/mv.fit,2.3));
   function free(box,id,labelsOnly){
